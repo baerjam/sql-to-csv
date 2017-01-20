@@ -36,13 +36,17 @@ Start the prompt:
     [sql_to_csv]>
 
 Run a query and print results to screen:
-    [sql_to_csv]> select a.company, count(*) as count from users u, accounts a where u.account_id=a.id group by a.company order by count desc;
-      Company,Count
-      Sprockets Inc,10
-      Dunder Mifflen,4
-      A-Tech LLC,3
-      TestCo,3
+```
+[sql_to_csv]> select a.company, count(*) as count from users u, accounts a where u.account_id=a.id group by a.company order by count desc;
+  Company,Count
+  Sprockets Inc,10
+  Dunder Mifflen,4
+  A-Tech LLC,3
+  TestCo,3
+```
 
 To redirect results to a file. Append > /path/to/file.csv after semi-colon in query
-    [sql_to_csv]> select a.company, count(*) as count from users u, accounts a where u.account_id=a.id group by a.company order by count desc; > /tmp/results.csv
+```
+[sql_to_csv]> select a.company, count(*) as count from users u, accounts a where u.account_id=a.id group by a.company order by count desc; > /tmp/results.csv
+```
 
