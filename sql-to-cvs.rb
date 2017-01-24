@@ -2,7 +2,7 @@
 #
 # sql-to-csv
 # MySQL results to CSV
-# Author: James Baer 
+# Author: James Baer
 
 require 'mysql2'
 require 'readline'
@@ -11,7 +11,7 @@ require 'yaml'
 
 PROMPT = '[sql_to_csv]> '.freeze
 DEFAULT_DB_CONFIG = 'database.yml'.freeze
-VERSION = '1.0.0'
+VERSION = '1.0.0'.freeze
 
 Choice.options do
   header ''
@@ -74,8 +74,8 @@ class SqlToCsv
                                   database: connection_params['database'])
   end
 
-  def new_output_file
-    @new_output_file ||= File.new(@output_file, 'wb')
+  def output_filehandle
+    @output_filehandle ||= File.new(@output_file, 'wb')
   end
 
   def redirecting_to_file?(line)
@@ -100,12 +100,12 @@ class SqlToCsv
 
   def print_line(line)
     puts line
-    new_output_file.puts line if @redirect_to_file
+    output_filehandle.puts line if @redirect_to_file
   end
 
   def cleanup
-    new_output_file.close if @redirect_to_file
-    @new_output_file = nil
+    output_filehandle.close if @redirect_to_file
+    @output_filehandle = nil
   end
 
   def start_prompt
