@@ -32,6 +32,12 @@ Choice.options do
     default 'db_prod_one'
   end
 
+  option :quote_fields do
+    short '-q'
+    long '--quote'
+    desc 'Quote all field valuesin output'
+  end
+
   option :version do
     short '-v'
     long '--version'
@@ -50,7 +56,7 @@ if CHOICES[:config]
 elsif File.exist?(DEFAULT_DB_CONFIG)
   CONFIG = YAML.load(IO.read(DEFAULT_DB_CONFIG))
 else
-  puts "Usage: #{File.basename(__FILE__)} { -c config_file } [-v]"
+  puts "Usage: #{File.basename(__FILE__)} { -c config_file | -d database_connection_name } [-qv]"
   exit
 end
 
@@ -58,10 +64,9 @@ end
 class SqlToCsv
   OUTPUT_REGEX = /;(?:\s)?+\>(?:\s)?(?<filename>.+)$/
 
-  def initialize
+  def initialize(quote_fields:)
     @redirect_to_file = false
-    @quote_fields = true
-
+    @quote_fields = quote_fields
     connect
     start_prompt
   end
@@ -127,13 +132,14 @@ class SqlToCsv
       end
 
       headers = results.fields
-      header_line = headers.map(&:capitalize).join(',')
+      header_line = headers.map { |f| @quote_fields ? "\"#{f.capitalize}\"" : f.capitalize }.join(',')
       print_line(header_line)
 
       results.each(cache_rows: false) do |row|
         result_line = []
         headers.each do |header|
-          result_line << row[header]
+          field_value = @quote_fields ? "\"#{row[header]}\"" : row[header]
+          result_line << field_value
         end
         print_line(result_line.join(','))
       end
@@ -142,4 +148,4 @@ class SqlToCsv
   end
 end
 
-SqlToCsv.new
+SqlToCsv.new(quote_fields: CHOICES[:quote_fields] || false)
