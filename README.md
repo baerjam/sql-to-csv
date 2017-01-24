@@ -1,10 +1,6 @@
-# sql-to-csv
-
-sql-to-csv is a utility script to simulate a MySQL command prompt that supports returning results in CSV format and redirecting results to a file
-
 ## What is it?
 
-sql-to-csv is a small utility Ruby script that allows the results of sql to to be outputted in CSV format or redirected to a file. Making it easy to copy and paste into an email or spreadsheet.
+sql-to-csv is a small utility script that allows the results of sql to to be outputted in CSV format or redirected to a file. Making it easy to copy and paste into an email or spreadsheet. It simulates a MySQL command prompt allowing for multiple queries to be run. 
 
 Features:
 - Print results as CSV to screen or redirect to file
