@@ -2,7 +2,7 @@
 #
 # sql-to-csv
 # MySQL results to CSV
-# Author: James Baer 
+# Author: James Baer
 
 require 'mysql2'
 require 'readline'
@@ -11,7 +11,7 @@ require 'yaml'
 
 PROMPT = '[sql_to_csv]> '.freeze
 DEFAULT_DB_CONFIG = 'database.yml'.freeze
-VERSION = '1.0.0'
+VERSION = '1.0.0'.freeze
 
 Choice.options do
   header ''
@@ -32,6 +32,12 @@ Choice.options do
     default 'db_prod_one'
   end
 
+  option :quote_fields do
+    short '-q'
+    long '--quote'
+    desc 'Quote all field valuesin output'
+  end
+
   option :version do
     short '-v'
     long '--version'
@@ -50,7 +56,7 @@ if CHOICES[:config]
 elsif File.exist?(DEFAULT_DB_CONFIG)
   CONFIG = YAML.load(IO.read(DEFAULT_DB_CONFIG))
 else
-  puts "Usage: #{File.basename(__FILE__)} { -c config_file } [-v]"
+  puts "Usage: #{File.basename(__FILE__)} { -c config_file | -d database_connection_name } [-qv]"
   exit
 end
 
@@ -58,10 +64,9 @@ end
 class SqlToCsv
   OUTPUT_REGEX = /;(?:\s)?+\>(?:\s)?(?<filename>.+)$/
 
-  def initialize
+  def initialize(quote_fields:)
     @redirect_to_file = false
-    @quote_fields = true
-
+    @quote_fields = quote_fields
     connect
     start_prompt
   end
@@ -76,8 +81,8 @@ class SqlToCsv
       reconnect: true)
   end
 
-  def new_output_file
-    @new_output_file ||= File.new(@output_file, 'wb')
+  def output_filehandle
+    @output_filehandle ||= File.new(@output_file, 'wb')
   end
 
   def redirecting_to_file?(line)
@@ -102,12 +107,12 @@ class SqlToCsv
 
   def print_line(line)
     puts line
-    new_output_file.puts line if @redirect_to_file
+    output_filehandle.puts line if @redirect_to_file
   end
 
   def cleanup
-    new_output_file.close if @redirect_to_file
-    @new_output_file = nil
+    output_filehandle.close if @redirect_to_file
+    @output_filehandle = nil
   end
 
   def start_prompt
@@ -129,13 +134,14 @@ class SqlToCsv
       end
 
       headers = results.fields
-      header_line = headers.map(&:capitalize).join(',')
+      header_line = headers.map { |f| @quote_fields ? "\"#{f.capitalize}\"" : f.capitalize }.join(',')
       print_line(header_line)
 
       results.each(cache_rows: false) do |row|
         result_line = []
         headers.each do |header|
-          result_line << row[header]
+          field_value = @quote_fields ? "\"#{row[header]}\"" : row[header]
+          result_line << field_value
         end
         print_line(result_line.join(','))
       end
@@ -144,4 +150,4 @@ class SqlToCsv
   end
 end
 
-SqlToCsv.new
+SqlToCsv.new(quote_fields: CHOICES[:quote_fields] || false)
