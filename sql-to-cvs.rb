@@ -68,10 +68,12 @@ class SqlToCsv
 
   def connect
     connection_params = CONFIG[CHOICES[:database]]
-    @client = Mysql2::Client.new(host: connection_params['host'],
-                                  username: connection_params['username'],
-                                  password: connection_params['password'],
-                                  database: connection_params['database'])
+    @client = Mysql2::Client.new(
+      host: connection_params['host'],
+      username: connection_params['username'],
+      password: connection_params['password'],
+      database: connection_params['database'],
+      reconnect: true)
   end
 
   def new_output_file
