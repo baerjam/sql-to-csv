@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+require 'choice'
+require 'sql-to-csv'
+
+Choice.options do
+  header ''
+  header 'options:'
+
+  option :database do
+    short '-d'
+    long '--database=DATABASE_NAME'
+    desc 'Name of database to select'
+    cast String
+  end
+
+  option :host, required: true do
+    short '-h'
+    long '--host=HOSTNAME'
+    desc 'Database Server ip or name. Required.'
+    cast String
+  end
+
+  option :quote_fields do
+    short '-q'
+    long '--quote'
+    desc 'Quote all field values in output'
+  end
+
+  option :user, required: true do
+    short '-u'
+    long '--user=USER'
+    desc 'Username. Required'
+    cast String
+  end
+
+  option :version do
+    short '-v'
+    long '--version'
+    desc 'Show version'
+    action do
+      puts "sql-to-csv v#{SqlToCsv::VERSION}"
+      exit
+    end
+  end
+end
+
+SqlToCsv::Client.start(Choice.choices)
