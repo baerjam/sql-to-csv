@@ -51,3 +51,15 @@ To redirect results to a file. Append "> /path/to/file.csv" after semi-colon in 
 [sql_to_csv]> select a.company, count(*) as count from users u, accounts a where u.account_id=a.id group by a.company order by count desc; > /tmp/results.csv
 ```
 
+## Options
+
+```
+Usage: sql-to-csv [-dhquv]
+
+options:
+    -d, --database=DATABASE_NAME     Name of database to select
+    -h, --host=HOSTNAME              Database Server ip or name. Required.
+    -q, --quote                      Quote all field values in output
+    -u, --user=USER                  Username. Required
+    -v, --version                    Show version
+```
