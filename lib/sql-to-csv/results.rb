@@ -39,12 +39,10 @@ module SqlToCsv
       print_line(header_line)
 
       @query_results.each(cache_rows: false) do |row|
-        result_line = []
-        headers.each do |header|
-          result_line << format_field(row[header])
-        end
+        result_line = headers.map { |header| format_field(row[header]) }
         print_line(result_line.join(','))
       end
+      
       cleanup
     end
 
