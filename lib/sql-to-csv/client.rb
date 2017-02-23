@@ -1,14 +1,27 @@
 module SqlToCsv
-  PROMPT = '[sql-to-csv]> '.freeze
-  OUTPUT_REGEX = /;(?:\s)?+\>(?:\s)?(?<filename>.+)$/
-
+  # Allows you to create a new SqlToCsv prompt
+  #
+  # To start the client via supplied executable:
+  #   $ sql-to-cvs -h localhost -u <username>
+  #
+  # To start the client directly:
+  #   SqlToCsv::Client.start(options)
+  #
+  # User will automatically be prompted for password
+  #
+  # Prompt supports:
+  #   - File redirection:
+  #       [sql-to-csv]> select * from widgets; > /tmp/results.csv
+  #   - Query history via up arrow
   class Client
+    PROMPT = '[sql-to-csv]> '.freeze
+
     def initialize(options = {})
       @redirect_to_file = false
-      @quote_fields = options[:quote_fields]
-      @history = Readline::HISTORY
-      @options = options
-      @connection = establish_connection
+      @quote_fields     = options[:quote_fields]
+      @history          = Readline::HISTORY
+      @options          = options
+      @connection       = establish_connection
     end
 
     def self.start(options)
@@ -16,8 +29,7 @@ module SqlToCsv
     end
 
     # Establish connection to database via supplied connection parameters
-    #
-    # Will automatically prompt user for password
+    # & automatically prompt user for password
     def establish_connection
       @client = Mysql2::Client.new(
         host: @options[:host],
@@ -30,7 +42,7 @@ module SqlToCsv
       raise ConnectionError, "Error connecting to database #{e}"
     end
 
-    # create new command line prompt that accepts
+    # create new command-line prompt that accepts
     # sql statements and file redirection options
     def prompt
       newline

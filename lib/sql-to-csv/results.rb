@@ -1,9 +1,9 @@
 module SqlToCsv
   class Results
     def initialize(results, file = nil, quote_fields = false)
-      @query_results = results
-      @file = file
-      @quote_fields = quote_fields
+      @query_results  = results
+      @file           = file
+      @quote_fields   = quote_fields
     end
 
     def headers
@@ -42,7 +42,7 @@ module SqlToCsv
         result_line = headers.map { |header| format_field(row[header]) }
         print_line(result_line.join(','))
       end
-      
+
       cleanup
     end
 

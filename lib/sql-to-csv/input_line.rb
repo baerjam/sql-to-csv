@@ -1,13 +1,15 @@
 module SqlToCsv
   class InputLine
+    OUTPUT_REGEX = /;(?:\s)?+\>(?:\s)?(?<filename>.+)$/
+
     attr_reader :output_file
 
     def initialize(line)
-      @line = line
+      @line             = line
       @redirect_to_file = false
-      @output_file = nil
+      @output_file      = nil
 
-      redirect_to_file?
+      has_file_redirection?
     end
 
     def user_quit?
@@ -23,7 +25,7 @@ module SqlToCsv
       @line.gsub(OUTPUT_REGEX, '')
     end
 
-    def redirect_to_file?
+    def has_file_redirection?
       if match = @line.match(OUTPUT_REGEX)
         @redirect_to_file = true
         @output_file = match[:filename]
