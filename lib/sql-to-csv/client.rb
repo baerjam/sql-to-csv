@@ -47,35 +47,29 @@ module SqlToCsv
     def prompt
       newline
       while line = Readline.readline(PROMPT, true)
-        input_line = SqlToCsv::InputLine.new(line)
+        @current_input_line = SqlToCsv::InputLine.new(line)
 
-        exit if input_line.user_quit?
-        next if input_line.empty?
+        exit if @current_input_line.user_quit?
+        next if @current_input_line.empty?
 
         # remove current statement from Readline::HISTORY
-        @history.pop if line_repeated?(line)
+        @history.pop if line_repeated?
 
-        # Execute query and return new results object
-        # go to new prompt if syntax error
+        # Execute query and return new results object. new prompt on syntax error
         begin
-          results = SqlToCsv::Results.new(
-            @connection.query(input_line.to_sql),
-            input_line.output_file,
-            @options[:quote_fields]
-          )
+          results = fetch_results
         rescue Mysql2::Error => e
           puts "Error: #{e}"
           next
         end
-
         results.print
       end
     end
 
     private
 
-    def line_repeated?(line)
-      @history.length > 1 && @history[@history.length - 2] == line
+    def line_repeated?
+      @history.length > 1 && @history[@history.length - 2] == @current_input_line.line
     end
 
     def password_prompt
@@ -85,6 +79,14 @@ module SqlToCsv
 
     def newline
       puts ''
+    end
+
+    def fetch_results
+      SqlToCsv::Results.new(
+        @connection.query(@current_input_line.to_sql),
+        @current_input_line.output_file,
+        @options[:quote_fields]
+      )
     end
   end
 end

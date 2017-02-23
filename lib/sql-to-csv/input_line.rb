@@ -2,7 +2,7 @@ module SqlToCsv
   class InputLine
     OUTPUT_REGEX = /;(?:\s)?+\>(?:\s)?(?<filename>.+)$/
 
-    attr_reader :output_file
+    attr_reader :output_file, :line
 
     def initialize(line)
       @line             = line
