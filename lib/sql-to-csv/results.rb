@@ -11,7 +11,7 @@ module SqlToCsv
     end
 
     def header_line
-      headers.map { |f| format_header(f) }.join(',')
+      headers.map { |field| format_header(field) }.join(',')
     end
 
     def output_filehandle
