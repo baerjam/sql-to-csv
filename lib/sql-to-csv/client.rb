@@ -21,6 +21,7 @@ module SqlToCsv
       @quote_fields     = options[:quote_fields]
       @history          = Readline::HISTORY
       @options          = options
+      @config           = database_config
       @connection       = establish_connection
     end
 
@@ -31,15 +32,10 @@ module SqlToCsv
     # Establish connection to database via supplied connection parameters
     # & automatically prompt user for password
     def establish_connection
-      @client = Mysql2::Client.new(
-        host: @options[:host],
-        username: @options[:user],
-        password: password_prompt,
-        database: @options[:database],
-        reconnect: true
-      )
-    rescue Mysql2::Error => e
-      raise ConnectionError, "Error connecting to database #{e}"
+      @config[:password] = password_prompt
+      @client = Mysql2::Client.new(@config)
+    rescue Mysql2::Error => error
+      raise ConnectionError, "Error connecting to database #{error}"
     end
 
     # create new command-line prompt that accepts
@@ -58,8 +54,8 @@ module SqlToCsv
         # Execute query and return new results object. new prompt on syntax error
         begin
           results = fetch_results
-        rescue Mysql2::Error => e
-          puts "Error: #{e}"
+        rescue Mysql2::Error => error
+          puts "Error: #{error}"
           next
         end
         results.print
@@ -87,6 +83,15 @@ module SqlToCsv
         @current_input_line.output_file,
         @options[:quote_fields]
       )
+    end
+
+    def database_config
+      {
+        host: @options[:host],
+        username: @options[:user],
+        database: @options[:database],
+        reconnect: true
+      }
     end
   end
 end
