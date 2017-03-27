@@ -28,6 +28,10 @@ module SqlToCsv
     end
 
     def format_field(field)
+      # mysql2 converts aggregate functions to BigDecimal objects
+      # convert to float so we can print them
+      field = field.to_f if field.is_a?(BigDecimal)
+
       @quote_fields ? "\"#{field}\"" : field
     end
 
@@ -39,6 +43,7 @@ module SqlToCsv
       print_line(header_line)
 
       @query_results.each(cache_rows: false) do |row|
+        p row
         result_line = headers.map { |header| format_field(row[header]) }
         print_line(result_line.join(','))
       end
