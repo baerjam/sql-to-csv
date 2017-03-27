@@ -30,7 +30,7 @@ module SqlToCsv
     def format_field(field)
       # mysql2 converts aggregate functions to BigDecimal objects
       # convert to float so we can print them
-      field = field.to_f if field.is_a?(BigDecimal)
+      field = field.to_s("F") if field.is_a?(BigDecimal)
 
       @quote_fields ? "\"#{field}\"" : field
     end
